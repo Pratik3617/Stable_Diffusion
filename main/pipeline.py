@@ -17,7 +17,7 @@ def generate(
         do_cfg=True, # model to output with and without prompt
         cfg_scale=7.5, # attnetion to be paid to the prompt
         sampler_name="ddpm", 
-        n_inference_Steps=50, 
+        n_inference_steps=50, 
         models={}, 
         seed=None,
         device=None, 
@@ -72,7 +72,7 @@ def generate(
 
     if sampler_name == "ddpm":
         sampler = DDPMSampler(generator)
-        sampler.set_inference_steps(n_inference_Steps)
+        sampler.set_inference_steps(n_inference_steps)
     else:
         raise ValueError(f"Unknown sampler {sampler_name}")
     
@@ -102,7 +102,7 @@ def generate(
         latents = encoder(input_image_tensor, encoder_noise)
 
         sampler.set_strength(strength=strength)
-        latents = sampler.add_noise(latents, sampler.timesteps[0])
+        latents = sampler.add_noise(latents, sampler.time_steps[0])
 
         to_idle(encoder)
     else:
@@ -112,7 +112,7 @@ def generate(
     diffusion = models['diffusion']
     diffusion.to(device)
 
-    timesteps = tqdm(sampler.timesteps)
+    timesteps = tqdm(sampler.time_steps)
     for i, timestep in enumerate(timesteps):
         #(1, 320)
         time_embedding = get_time_embedding(timestep).to(device)

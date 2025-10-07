@@ -27,12 +27,12 @@ class UNET_Residual_Block(nn.Module):
         self.linear_time = nn.Linear(n_time, out_channels)
 
         self.groupnorm_merged = nn.GroupNorm(32, out_channels)
-        self.conv_merged = nn.Conv2d(out_channels, out_channels, Kernel_size=3, padding=1)
+        self.conv_merged = nn.Conv2d(out_channels, out_channels, kernel_size=3, padding=1)
 
         if in_channels == out_channels:
             self.residual_layer = nn.Identity()
         else:
-             self.residual_layer = nn.Conv2d(in_channels, out_channels, Kernel_size=1, padding=0)
+             self.residual_layer = nn.Conv2d(in_channels, out_channels, kernel_size=1, padding=0)
 
     def forward(self, x, time):
         # x: (batch_size, channels, height, width)
@@ -72,7 +72,7 @@ class UNET_Attention_Block(nn.Module):
         self.linear_geglu_1 = nn.Linear(channels, 4*channels*2)
         self.linear_geglu_2 = nn.Linear(4*channels, channels)
 
-        self.conv_output = nn.Conv2d(channels, kernel_size=1, padding=0)
+        self.conv_output = nn.Conv2d(channels, channels, kernel_size=1, padding=0)
 
     def forward(self, x, context):
         # x: (batch_size, features, height, width)
@@ -147,7 +147,7 @@ class UNET(nn.Module):
     def __init__(self):
         super().__init__()
 
-        self.encoders = nn.Module([
+        self.encoders = nn.ModuleList([
             # (batch_size, 4, height/8, width/8)
             SwitchSequential(nn.Conv2d(4, 320, kernel_size=3, padding=1)),
 
@@ -282,6 +282,7 @@ class UNET_Output_Layer(nn.Module):
 
 class Diffusion(nn.Module):
     def __init__(self):
+        super().__init__()
         self.time_embedding = TimeEmbedding(320)
         self.unet = UNET()
         self.final = UNET_Output_Layer(320, 4)

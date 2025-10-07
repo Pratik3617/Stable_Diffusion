@@ -51,7 +51,7 @@ class VAE_Decoder(nn.Sequential):
 
             nn.GroupNorm(32, 128),
 
-            nn.silu(),
+            nn.SiLU(),
 
             # (batch_Size, 128, height, width) -> (batch_Size, 3, height, width)
             nn.Conv2d(128, 3, kernel_size=3, padding=1)

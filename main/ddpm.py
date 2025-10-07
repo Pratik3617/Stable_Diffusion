@@ -30,8 +30,8 @@ class DDPMSampler:
     def get_variance(self, time_step: int) -> torch.Tensor:
         prev_t = self._get_previous_timestep(time_step)
 
-        alpha_prod_t = self.alphas_cumprod[time_step]
-        alpha_prod_t_prev = self.alphas_cumprod[prev_t] if prev_t >= 0 else self.one
+        alpha_prod_t = self.alpha_cumprod[time_step]
+        alpha_prod_t_prev = self.alpha_cumprod[prev_t] if prev_t >= 0 else self.one
         current_beta_t = 1 - alpha_prod_t / alpha_prod_t_prev
 
         # For t > 0, compute predicted variance βt (see formula (6) and (7) from https://arxiv.org/pdf/2006.11239.pdf)
@@ -105,5 +105,5 @@ class DDPMSampler:
     def set_strength(self, strength=1):
         # start_step is the number of noise levels to skip
         start_step = self.num_inference_steps - int(self.num_inference_steps * strength)
-        self.timesteps = self.timesteps[start_step:]
+        self.timesteps = self.time_steps[start_step:]
         self.start_step = start_step
