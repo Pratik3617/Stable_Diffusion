@@ -27,7 +27,7 @@ class SelfAttention(nn.Module):
         intermim_shape = (batch_size, sequence_length, self.n_heads, self.d_head)
 
         # (batch_size, seq_len, dim) -> (batch_size, seq_len, Dim*3) -> 3 tensors of shape (batch_size, seq_len, dim)
-        q, k, v = self.in_proj(x).chunks(3, dim=-1)
+        q, k, v = self.in_proj(x).chunk(3, dim=-1)
 
         # (batch_size, seq_len, dim) -> (batch_size, seq_len, H, dim/H)   H -> no. of heads
         q = q.view(intermim_shape).transpose(1, 2)
@@ -39,7 +39,7 @@ class SelfAttention(nn.Module):
         if casual_mask:
             # mask where the upper triangle is made up of 1s
             mask = torch.ones_like(weight, dtype=torch.bool).triu(1)
-            weight.masked_fill(mask, -torch.inf)
+            weight.masked_fill_(mask, -torch.inf)
 
         weight /= math.sqrt(self.d_head)
 
@@ -91,6 +91,8 @@ class CrossAttention(nn.Module):
         weight /= math.sqrt(self.d_head)
 
         weight = F.softmax(weight, dim=-1)
+
+        output = weight @ v
         
         output = output.transpose(1, 2).contiguous()
 

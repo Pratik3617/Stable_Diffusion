@@ -6,7 +6,7 @@ class DDPMSampler:
         self.betas = torch.linspace(beta_start**0.5, beta_end**0.5, num_training_steps, dtype=torch.float32)**2
         self.alphas = 1.0 - self.betas
         self.alpha_cumprod = torch.cumprod(self.alphas, 0)
-        self.one = torch.tesnor(1.0)
+        self.one = torch.tensor(1.0)
 
         self.generator = generator
         self.num_training_steps = num_training_steps
@@ -28,7 +28,7 @@ class DDPMSampler:
     
     
     def get_variance(self, time_step: int) -> torch.Tensor:
-        prev_t = self._get_previous_timestep(time_step)
+        prev_t = self.get_previous_timestep(time_step)
 
         alpha_prod_t = self.alpha_cumprod[time_step]
         alpha_prod_t_prev = self.alpha_cumprod[prev_t] if prev_t >= 0 else self.one
@@ -105,5 +105,5 @@ class DDPMSampler:
     def set_strength(self, strength=1):
         # start_step is the number of noise levels to skip
         start_step = self.num_inference_steps - int(self.num_inference_steps * strength)
-        self.timesteps = self.time_steps[start_step:]
+        self.time_steps = self.time_steps[start_step:]
         self.start_step = start_step
